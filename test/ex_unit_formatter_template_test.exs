@@ -1,22 +1,75 @@
 defmodule ExUnitFormatterTemplateTest do
   use ExUnit.Case
 
-  alias SampleFormatter, as: SF
-
   describe "default formatter" do
-    test "does the right thing" do
-      {:ok, formatter} = GenServer.start_link(SF, [nil])
+    test "provides a sensible default behaviour to log result counts" do
+      {:ok, formatter} = GenServer.start_link(SampleFormatter, [nil])
 
-      GenServer.cast(formatter, {:suite_started, %{}})
+      cast(formatter, :suite_started)
 
-      log_passing_test(formatter)
-      log_failing_test(formatter)
+      cast(formatter, :test_finished, %{state: nil})
+      cast(formatter, :test_finished, %{state: {:failed, %{}}})
+      cast(formatter, :test_finished, %{state: {:skipped, %{}}})
 
-      GenServer.cast(formatter, {:suite_finished, %{}})
+      cast(formatter, :suite_finished)
 
       state = :sys.get_state(formatter)
 
       GenServer.stop(formatter)
+
+      assert state.total == 3
+      assert state.passed == 1
+      assert state.failed == 1
+      assert state.skipped == 1
+    end
+  end
+
+  describe "custom formatter" do
+    test "overrides the default behaivour" do
+      {:ok, formatter} = GenServer.start_link(StringFormatter, [nil])
+
+      cast(formatter, :suite_started)
+
+      cast(formatter, :case_started)
+
+      cast(formatter, :module_started)
+
+      cast(formatter, :test_started)
+      cast(formatter, :test_finished)
+
+      cast(formatter, :test_started)
+      cast(formatter, :test_finished)
+
+      cast(formatter, :module_finished)
+
+      cast(formatter, :case_finished)
+
+      cast(formatter, :suite_finished)
+
+      state = :sys.get_state(formatter)
+
+      GenServer.stop(formatter)
+
+      assert state == "S[C[M[T[]T[]]]]"
+    end
+  end
+
+  describe "partial formatter" do
+    test "doesn't have to override every callback" do
+      {:ok, formatter} = GenServer.start_link(JsonFormatter, [nil])
+
+      cast(formatter, :suite_started)
+
+      cast(formatter, :test_finished, %{state: nil})
+      cast(formatter, :test_finished, %{state: {:failed, %{}}})
+
+      cast(formatter, :suite_finished)
+
+      state = :sys.get_state(formatter)
+
+      GenServer.stop(formatter)
+
+      state = Jason.decode!(state, keys: :atoms)
 
       assert state.total == 2
       assert state.passed == 1
@@ -24,11 +77,7 @@ defmodule ExUnitFormatterTemplateTest do
     end
   end
 
-  defp log_passing_test(formatter) do
-    GenServer.cast(formatter, {:test_finished, %{state: nil}})
-  end
-
-  defp log_failing_test(formatter) do
-    GenServer.cast(formatter, {:test_finished, %{state: {:failed, %{}}}})
+  defp cast(formatter, event, data \\ %{}) do
+    GenServer.cast(formatter, {event, data})
   end
 end

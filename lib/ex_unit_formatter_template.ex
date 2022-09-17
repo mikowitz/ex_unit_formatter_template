@@ -11,7 +11,6 @@ defmodule ExUnitFormatterTemplate do
   @callback module_finished(term, term) :: term
 
   @callback init :: term
-  @callback final(term, term) :: term
 
   @optional_callbacks suite_started: 2,
                       suite_finished: 2,
@@ -21,8 +20,7 @@ defmodule ExUnitFormatterTemplate do
                       test_finished: 2,
                       module_started: 2,
                       module_finished: 2,
-                      init: 0,
-                      final: 2
+                      init: 0
 
   defmacro __using__(_) do
     quote do
@@ -52,11 +50,6 @@ defmodule ExUnitFormatterTemplate do
       def handle_cast({event, _data}, state) do
         Logger.info("Received unexpected event: #{event}")
         {:noreply, state}
-      end
-
-      def terminate(reason, state) do
-        new_state = run_if_defined?({:final, 2}, [reason, state])
-        IO.inspect(:stdio, new_state || state, [])
       end
 
       defp noreply(nil, state), do: {:noreply, state}
@@ -89,16 +82,15 @@ defmodule ExUnitFormatterTemplate do
   def test_started(_test_state, state), do: state
 
   def test_finished(test_state, state) do
-    result =
-      case test_state.state do
-        nil -> :passed
-        {result, _} -> result
-      end
+    result = get_test_outcome(test_state)
 
     state
     |> Map.update(result, 0, &inc/1)
     |> Map.update(:total, 0, &inc/1)
   end
+
+  defp get_test_outcome(%{state: nil}), do: :passed
+  defp get_test_outcome(%{state: {result, _}}), do: result
 
   defp inc(n), do: n + 1
 end
