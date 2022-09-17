@@ -1,21 +1,17 @@
 defmodule ExUnitFormatterTemplate do
-  # TODO: better typespecs for the callbacks
-  @callback suite_started(term, term) :: term
-  @callback suite_finished(term, term) :: term
-  @callback case_started(term, term) :: term
-  @callback case_finished(term, term) :: term
+  @type state :: term()
 
-  @callback test_started(term, term) :: term
-  @callback test_finished(term, term) :: term
-  @callback module_started(term, term) :: term
-  @callback module_finished(term, term) :: term
+  @callback suite_started(Keyword.t(), state()) :: state()
+  @callback suite_finished(ExUnit.Formatter.times_us(), state()) :: state()
+  @callback test_started(ExUnit.Test.t(), state()) :: state()
+  @callback test_finished(ExUnit.Test.t(), state()) :: state()
+  @callback module_started(ExUnit.TestModule.t(), state()) :: state()
+  @callback module_finished(ExUnit.TestModule.t(), state()) :: state()
 
-  @callback init :: term
+  @callback init :: state()
 
   @optional_callbacks suite_started: 2,
                       suite_finished: 2,
-                      case_started: 2,
-                      case_finished: 2,
                       test_started: 2,
                       test_finished: 2,
                       module_started: 2,
@@ -29,12 +25,13 @@ defmodule ExUnitFormatterTemplate do
 
       @behaviour unquote(__MODULE__)
 
-      @supported_cast_events ~w(
+      @supported_events ~w(
         suite_started suite_finished
-        case_started case_finished
         test_started test_finished
         module_started module_finished
       )a
+
+      @deprecated_events ~w(case_started case_finished)a
 
       def init(_) do
         state = run_if_defined?({:init, 0}, [])
@@ -42,9 +39,17 @@ defmodule ExUnitFormatterTemplate do
         {:ok, state}
       end
 
-      def handle_cast({event, event_data}, state) when event in @supported_cast_events do
+      def handle_cast({event, event_data}, state) when event in @supported_events do
         run_if_defined?({event, 2}, [event_data, state])
         |> noreply(state)
+      end
+
+      # According to the ExUnit docs, these events are still called,
+      # but are deprecated and can be ignored. Thus we want to exclude
+      # them from our callbacks, but also not pollute output with logs
+      # related to them, as below.
+      def handle_cast({event, _}, state) when event in @deprecated_events do
+        {:noreply, state}
       end
 
       def handle_cast({event, _data}, state) do

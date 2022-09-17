@@ -19,14 +19,6 @@ defmodule StringFormatter do
     state <> "]"
   end
 
-  def case_started(%{}, state) do
-    state <> "C["
-  end
-
-  def case_finished(_, state) do
-    state <> "]"
-  end
-
   def test_started(%{}, state) do
     state <> "T["
   end

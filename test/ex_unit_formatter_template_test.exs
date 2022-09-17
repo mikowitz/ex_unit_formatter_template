@@ -30,8 +30,6 @@ defmodule ExUnitFormatterTemplateTest do
 
       cast(formatter, :suite_started)
 
-      cast(formatter, :case_started)
-
       cast(formatter, :module_started)
 
       cast(formatter, :test_started)
@@ -42,15 +40,13 @@ defmodule ExUnitFormatterTemplateTest do
 
       cast(formatter, :module_finished)
 
-      cast(formatter, :case_finished)
-
       cast(formatter, :suite_finished)
 
       state = :sys.get_state(formatter)
 
       GenServer.stop(formatter)
 
-      assert state == "S[C[M[T[]T[]]]]"
+      assert state == "S[M[T[]T[]]]"
     end
   end
 
