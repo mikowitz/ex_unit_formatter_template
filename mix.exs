@@ -12,7 +12,8 @@ defmodule ExUnitFormatterTemplate.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: docs(),
-      package: package()
+      package: package(),
+      source_url: "https://github.com/mikowitz/ex_unit_formatter_template"
     ]
   end
 
