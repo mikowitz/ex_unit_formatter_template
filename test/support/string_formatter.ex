@@ -1,4 +1,6 @@
 defmodule StringFormatter do
+  @moduledoc false
+
   use ExUnitFormatterTemplate
 
   def init, do: ""
