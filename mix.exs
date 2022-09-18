@@ -4,12 +4,15 @@ defmodule ExUnitFormatterTemplate.MixProject do
   def project do
     [
       app: :ex_unit_formatter_template,
+      name: "ExUnitFormatterTemplate",
+      description: "Simple template for creating a custom formatter for use with ExUnit",
       version: "0.0.1",
       elixir: "~> 1.13",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      docs: docs()
+      docs: docs(),
+      package: package()
     ]
   end
 
@@ -34,8 +37,18 @@ defmodule ExUnitFormatterTemplate.MixProject do
 
   defp docs do
     [
-      main: "ExUnitFormatterTemplate",
-      extras: ["README.md"]
+      main: "ExUnitFormatterTemplate"
+    ]
+  end
+
+  defp package do
+    [
+      name: :ex_unit_formatter_template,
+      licenses: ["MIT"],
+      links: %{
+        "Github" => "https://github.com/mikowitz/ex_unit_formatter_template",
+        "HexDocs" => "https://hexdocs.pm/ex_unit_formatter_template"
+      }
     ]
   end
 end
