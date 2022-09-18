@@ -45,7 +45,7 @@ defmodule ExUnitFormatterTemplate do
       end
 
       # According to the ExUnit docs, these events are still called,
-      # but are deprecated and can be ignored. Thus we want to exclude
+      # but are deprecated and can be ignored. Thus, we want to exclude
       # them from our callbacks, but also not pollute output with logs
       # related to them, as below.
       def handle_cast({event, _}, state) when event in @deprecated_events do
@@ -76,7 +76,7 @@ defmodule ExUnitFormatterTemplate do
   def final(_reason, state), do: state
 
   def suite_started(_suite_data, state), do: state
-  def suite_finished(_suite_data, state), do: state
+  def suite_finished(_suite_data, state), do: IO.inspect(state)
 
   def case_started(_case_state, state), do: state
   def case_finished(_case_state, state), do: state
