@@ -4,11 +4,12 @@ defmodule ExUnitFormatterTemplate.MixProject do
   def project do
     [
       app: :ex_unit_formatter_template,
-      version: "0.1.0",
+      version: "0.0.1",
       elixir: "~> 1.13",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      docs: docs()
     ]
   end
 
@@ -25,8 +26,16 @@ defmodule ExUnitFormatterTemplate.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:jason, "~> 1.4"},
+      {:ex_doc, "~> 0.27", only: [:dev, :test], runtime: false},
+      {:jason, "~> 1.4", only: [:test]},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      main: "ExUnitFormatterTemplate",
+      extras: ["README.md"]
     ]
   end
 end

@@ -84,7 +84,7 @@ by adding `ex_unit_formatter_template` to your list of dependencies in `mix.exs`
 ```elixir
 def deps do
   [
-    {:ex_unit_formatter_template, "~> 0.1.0"}
+    {:ex_unit_formatter_template, "~> 0.0.1"}
   ]
 end
 ```
